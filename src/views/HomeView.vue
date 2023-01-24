@@ -3,15 +3,17 @@
         <div class="card">
             <h2>My tasks</h2>
             <div v-show="tasksList" class="list">
-                <TaskComponent @completed="completeTask(task.id)" @removed="removeTask(task.id)" v-for="task in tasksList" :title="task.title"
-                    :key="task.id" :completed="task.completed" />
+                <transition-group name="task-list">
+                    <TaskComponent @completed="completeTask(task.id)" @removed="removeTask(task.id)"
+                        v-for="task in tasksList" :title="task.title" :key="task.id" :completed="task.completed" />
+                </transition-group>
             </div>
         </div>
         <ControlPanelComponent @taskAlter="addTask()" @userIdChange="updateTasksList()" />
     </div>
 </template>
 
-<script lang="ts" setup> 
+<script lang="ts" setup>
 import TaskComponent from '@/components/TaskComponent.vue';
 import { onMounted, ref } from 'vue';
 import TasksService, { Task } from "@/services/TasksService"
@@ -26,8 +28,8 @@ onMounted(() => {
     updateTasksList()
 })
 
-function updateTasksList(){
-    TasksService.getTasksByUserId(store.state.taskUserId).then(v=>{
+function updateTasksList() {
+    TasksService.getTasksByUserId(store.state.taskUserId).then(v => {
         tasksList.value = v
         sortTasks()
     })
@@ -37,7 +39,7 @@ function completeTask(id: number) {
     tasksList.value?.every(t => {
         if (t.id === id) {
             t.completed = !t.completed
-            TasksService.completeTask(id,t.completed)
+            TasksService.completeTask(id, t.completed)
             return false
         }
         return true
@@ -45,8 +47,8 @@ function completeTask(id: number) {
     sortTasks()
 }
 
-async function addTask(){
-    await TasksService.alterTask(store.state.taskUserId,store.state.taskTitle,store.state.taskCompleted)
+async function addTask() {
+    await TasksService.alterTask(store.state.taskUserId, store.state.taskTitle, store.state.taskCompleted)
     updateTasksList()
 }
 
@@ -99,5 +101,16 @@ function sortTasks() {
             }
         }
     }
+}
+
+.task-list-enter-active,
+.task-list-leave-active {
+    transition: all 1s ease;
+}
+
+.task-list-enter-from,
+.task-list-leave-to {
+    opacity: 0;
+    transform: translateX(30px);
 }
 </style>
