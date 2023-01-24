@@ -22,7 +22,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, defineEmits } from 'vue'
+import { ref, defineEmits, watch } from 'vue'
 import { useStore } from 'vuex';
 
 const store = useStore()
@@ -37,7 +37,7 @@ const selected = ref(false)
 
 function setId(){
     if(userId.value>0 && userId.value<=20){
-        store.commit('setUserId', userId.value)
+        store.commit('setTaskUserId', userId.value)
         emit('userIdChange')
     }else{
         userId.value=1
@@ -50,7 +50,9 @@ function setId(){
 }
 function setTitle(){
     if (title.value.length) {
-        store.commit('setTitle', title.value)
+        store.commit('setTaskTitle', title.value)
+        emit('taskAlter')
+        title.value=''
     }else{
         disabledTitle.value=true
         setTimeout(()=>{
@@ -58,6 +60,10 @@ function setTitle(){
         },1200)
     }
 }
+
+watch(selected,(v:boolean)=>{
+    store.commit('setTaskCompleted', v)
+})
 </script>
 
 <style scoped lang="scss">

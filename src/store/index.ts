@@ -5,7 +5,7 @@ export default createStore({//тут можно было объединить в
   state: {
     taskUserId:1,
     taskTitle:null as string | null,
-    taskSelected:false
+    taskCompleted:false
   },
   getters: {
   },
@@ -16,8 +16,8 @@ export default createStore({//тут можно было объединить в
     setTaskUserId(state,val:number){
         state.taskUserId = val
     },
-    setTaskSelected(state,val:boolean){
-        state.taskSelected = val
+    setTaskCompleted(state,val:boolean){
+        state.taskCompleted = val
     },
   },
   actions: {

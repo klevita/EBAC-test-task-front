@@ -7,7 +7,7 @@
                     :key="task.id" :completed="task.completed" />
             </div>
         </div>
-        <ControlPanelComponent />
+        <ControlPanelComponent @taskAlter="addTask()" @userIdChange="updateTasksList()" />
     </div>
 </template>
 
@@ -16,23 +16,38 @@ import TaskComponent from '@/components/TaskComponent.vue';
 import { onMounted, ref } from 'vue';
 import TasksService, { Task } from "@/services/TasksService"
 import ControlPanelComponent from '@/components/ControlPanelComponent.vue';
+import { useStore } from 'vuex';
+
+const store = useStore()
 
 const tasksList = ref<null | Task[]>(null)
 
-onMounted(async () => {
-    tasksList.value = await TasksService.getTasksByUserId(1)
-    sortTasks()
+onMounted(() => {
+    updateTasksList()
 })
+
+function updateTasksList(){
+    TasksService.getTasksByUserId(store.state.taskUserId).then(v=>{
+        tasksList.value = v
+        sortTasks()
+    })
+}
 
 function completeTask(id: number) {
     tasksList.value?.every(t => {
         if (t.id === id) {
             t.completed = !t.completed
+            TasksService.completeTask(id,t.completed)
             return false
         }
         return true
     })
     sortTasks()
+}
+
+async function addTask(){
+    await TasksService.alterTask(store.state.taskUserId,store.state.taskTitle,store.state.taskCompleted)
+    updateTasksList()
 }
 
 function removeTask(id: number) {
@@ -41,7 +56,7 @@ function removeTask(id: number) {
             return t.id !== id
         })
     }
-    sortTasks()
+    TasksService.deleteTask(id)
 }
 
 function sortTasks() {
