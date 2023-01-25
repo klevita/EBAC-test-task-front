@@ -2,18 +2,20 @@
     <div class="home">
         <div class="card">
             <h2>My tasks</h2>
-            <div v-show="tasksList" class="list">
+            <div v-show="!tasksListLoading" class="list">
                 <transition-group name="task-list">
                     <TaskComponent @completed="completeTask(task.id)" @removed="removeTask(task.id)"
                         v-for="task in tasksList" :title="task.title" :key="task.id" :completed="task.completed" />
                 </transition-group>
             </div>
+            <SpinnerComponent v-show="tasksListLoading" />
         </div>
         <ControlPanelComponent @taskAlter="addTask()" @userIdChange="updateTasksList()" />
     </div>
 </template>
 
 <script lang="ts" setup>
+import SpinnerComponent from '@/components/SpinnerComponent.vue';
 import TaskComponent from '@/components/TaskComponent.vue';
 import { onMounted, ref } from 'vue';
 import TasksService, { Task } from "@/services/TasksService"
@@ -23,15 +25,18 @@ import { useStore } from 'vuex';
 const store = useStore()
 
 const tasksList = ref<null | Task[]>(null)
+const tasksListLoading = ref(true)
 
 onMounted(() => {
     updateTasksList()
 })
 
 function updateTasksList() {
+    tasksListLoading.value=true
     TasksService.getTasksByUserId(store.state.taskUserId).then(v => {
         tasksList.value = v
         sortTasks()
+        tasksListLoading.value=false
     })
 }
 
