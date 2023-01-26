@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export default () => {
-  const baseUrl = "http://localhost:8087/";
+  const baseUrl = "https://ebac-api-production.up.railway.app/";
 
   return axios.create({
     baseURL: baseUrl,
